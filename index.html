@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KURSO — La Tri Aktoj</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="crt">
+  <div id="screenWrap">
+    <div id="screen">
+      <div id="fx"></div>
+      <div id="hud">
+        <span id="hud-act">AKTO I</span>
+        <span id="hud-dict" title="Tab — словарь">SLOVNIK: 0</span>
+        <span id="hud-mem">MEMORO: 0</span>
+        <span id="hud-ach">🏆 0/22</span>
+        <span id="hud-miss">MALSUKCESOJ: 0</span>
+        <span id="hud-paused" style="display:none">◼ PAŬZITA</span>
+        <span id="hud-time">--:--:--</span>
+      </div>
+      <div id="out"></div>
+      <div id="interact"></div>
+    </div>
+  </div>
+</div>
+
+<div id="flash"></div>
+<div id="jumpscare"></div>
+<div id="achieve"></div>
+
+<!-- ГЛАВНОЕ МЕНЮ -->
+<div id="gate">
+  <canvas id="gateCanvas"></canvas>
+  <div class="gate-inner">
+    <div class="gate-star">✦</div>
+    <div class="gtitle">KURSO</div>
+    <div class="gsub">esperanto · tri aktoj · unu koro</div>
+    <div class="gate-divider"></div>
+    <div class="gate-menu" id="gateMenu"></div>
+  </div>
+  <div class="gate-version">KURSO v11.4 · Maxim Semenenko · ĉiam kune</div>
+</div>
+
+<!-- МЕНЮ ПАУЗЫ (ESC) -->
+<div id="pauseMenu">
+  <div class="pause-box">
+    <h2>◼ PAŬZO · ПАУЗА</h2>
+    <div class="pause-sub">ESC — закрыть · ↑↓ — выбрать · E — подтвердить</div>
+    <div class="pause-list" id="pauseList"></div>
+  </div>
+</div>
+
+<!-- ПОДМЕНЮ (акты / уроки / настройки / статистика / словарь) -->
+<div id="subMenu">
+  <div class="sub-box">
+    <h2 id="subTitle">Меню</h2>
+    <div class="sub-sub" id="subSub"></div>
+    <div class="sub-list" id="subList"></div>
+    <button class="sub-close" id="subClose">← Назад</button>
+  </div>
+</div>
+
+<!-- ТИТРЫ -->
+<div id="credits">
+  <div class="cred-inner">
+    <div class="cred-scroll" id="credScroll"></div>
+  </div>
+  <button class="cred-skip" id="credSkip">▶ ПРОПУСТИТЬ</button>
+</div>
+
+<!-- КОНСОЛЬ -->
+<div id="console">
+  <div class="c-box">
+    <h3>◈ KONSOLO</h3>
+    <div class="c-sub">СЕКРЕТНАЯ КОНСОЛЬ · CTRL+P</div>
+    <div class="c-hint">Введи одну из команд. Esc — закрыть.</div>
+    <div class="c-cmds" id="consoleCmds"></div>
+    <div class="c-line">
+      <span class="c-prompt">›</span>
+      <input id="consoleInput" type="text" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="c-log" id="consoleLog"></div>
+    <div class="c-footer">CTRL+P — открыть · Esc — закрыть</div>
+  </div>
+</div>
+
+<!-- =========================================================
+     ВСТРОЕННАЯ ХОДИЛКА
+     VULPETO ABELETO — LA SILENTO
+     Управляется из engine.js через launchWalk()
+     ========================================================= -->
+<div id="walkOverlay" aria-hidden="true">
+  <div id="walkLoader">
+    <div class="wl-star">✦</div>
+    <div class="wl-text">LA KLUBO MALFERMIĜAS</div>
+    <div class="wl-sub">клуб открывается</div>
+    <div class="wl-hint">[ожидание]</div>
+  </div>
+  <iframe id="walkFrame" src="about:blank" frameborder="0" title="Vulpeto Abeleto — La Silento"></iframe>
+</div>
+
+<script src="story/act1.js"></script>
+<script src="story/act2.js"></script>
+<script src="story/act3.js"></script>
+
+<script src="audio.js"></script>
+<script src="engine.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VULPETO ABELETO — La Silento</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;width:100%;height:100%;overflow:hidden;
+    background:#000;color:#b9b9b9;
+    font-family:"Courier New",Consolas,monospace;
+    user-select:none;
+  }
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;}
+  canvas{display:block;image-rendering:pixelated;}
+
+  .panel{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;background:rgba(0,0,0,0.88);z-index:50;
+  }
+  .hidden{display:none !important;}
+
+  h1{
+    font-size:44px;letter-spacing:8px;color:#e0d8c8;margin:0 0 6px 0;
+    text-shadow:0 0 20px #8b2020, 0 0 4px #000;
+  }
+  h2{font-size:18px;letter-spacing:5px;color:#8a7a6a;margin:0 0 34px 0;font-weight:normal;}
+  .sub{font-size:13px;color:#6a6a6a;margin-top:26px;letter-spacing:1px;text-align:center;line-height:1.7;}
+
+  button{
+    display:block;width:320px;margin:7px 0;padding:12px 18px;
+    background:#141419;color:#c8c0b0;border:1px solid #3a3a3a;
+    font-family:inherit;font-size:15px;letter-spacing:3px;cursor:pointer;
+    transition:all .15s;
+  }
+  button:hover{background:#251a1e;color:#f0e0cc;border-color:#8b2020;box-shadow:0 0 16px #4a1010;}
+
+  #settingsPanel{background:rgba(0,0,0,0.94);}
+  .settingsBox{
+    width:640px;max-height:86vh;overflow-y:auto;padding:26px 34px;
+    border:1px solid #333;background:#0d0d12;
+  }
+  .settingsBox h3{margin:0 0 20px 0;letter-spacing:6px;color:#d0bca0;font-size:20px;text-align:center;}
+  .row{display:flex;align-items:center;justify-content:space-between;margin:11px 0;font-size:13px;gap:14px;}
+  .row label{flex:0 0 240px;color:#a8a8a8;letter-spacing:1px;}
+  .row input[type=range]{flex:1;accent-color:#a02828;height:4px;cursor:pointer;}
+  .row .val{flex:0 0 60px;text-align:right;color:#d0a870;font-size:12px;}
+  .row input[type=checkbox]{width:18px;height:18px;accent-color:#a02828;cursor:pointer;}
+  .hr{height:1px;background:#2a2a2a;margin:18px 0;}
+  .settingsBox .closeBtn{width:100%;margin-top:12px;}
+  .settingsBox .tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .settingsBox .tabs button{width:auto;flex:1;margin:0;font-size:12px;padding:8px 6px;letter-spacing:2px;}
+  .settingsBox .tabs button.active{background:#251a1e;color:#f0e0cc;border-color:#8b2020;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .exitKursoBtn{
+    width:100%;margin-top:10px;padding:11px;
+    background:transparent;color:#c88a9a;border:1px solid #5a2a3a;
+    font-family:inherit;font-size:14px;letter-spacing:2px;cursor:pointer;
+  }
+  .exitKursoBtn:hover{background:#5a2a3a;color:#fff;}
+
+  #dialogBox{
+    position:fixed;left:50%;bottom:38px;transform:translateX(-50%);
+    width:min(880px,92vw);padding:18px 24px;background:rgba(6,6,10,0.96);
+    border:1px solid #3a2a2a;border-left:3px solid #8b2020;z-index:60;
+    box-shadow:0 0 40px #000;
+  }
+  #dialogName{color:#c04848;font-size:13px;letter-spacing:4px;margin-bottom:9px;}
+  #dialogText{font-size:15px;line-height:1.65;color:#d8d0c0;white-space:pre-wrap;min-height:46px;}
+  #dialogHint{text-align:right;font-size:11px;color:#666;margin-top:9px;letter-spacing:2px;}
+
+  #promptBox{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(760px,92vw);padding:24px 28px;background:rgba(8,8,14,0.98);
+    border:1px solid #3a2a2a;z-index:70;box-shadow:0 0 60px #000;
+  }
+  #promptText{font-size:15px;line-height:1.6;color:#d8d0c0;margin-bottom:16px;white-space:pre-wrap;}
+  #promptInput{
+    width:100%;padding:11px 13px;background:#111118;border:1px solid #3a3a3a;
+    color:#f0e0cc;font-family:inherit;font-size:18px;letter-spacing:2px;outline:none;
+  }
+  #promptInput:focus{border-color:#8b2020;box-shadow:0 0 14px #4a1010;}
+  #promptHint{font-size:11px;color:#666;margin-top:9px;letter-spacing:2px;text-align:right;}
+  #promptXnote{
+    margin-top:8px;font-size:10px;color:#5a5a6a;letter-spacing:1px;text-align:right;
+  }
+  #promptXnote b{color:#8a8a9a;}
+  #promptError{
+    margin-top:10px;padding:8px 12px;background:#1a0808;border:1px solid #8b2020;
+    font-size:12px;color:#e08080;letter-spacing:1px;display:none;
+  }
+  #promptError.on{display:block;}
+
+  #hud{
+    position:fixed;top:14px;left:16px;font-size:12px;color:#7a7a7a;
+    letter-spacing:2px;z-index:40;pointer-events:none;
+  }
+  #hud b{color:#c08858;font-weight:normal;}
+  #hudRight{
+    position:fixed;top:14px;right:16px;font-size:12px;color:#7a7a7a;
+    letter-spacing:2px;z-index:40;pointer-events:none;text-align:right;
+  }
+  #hudRight .fear{display:inline-block;width:110px;height:8px;background:#1a1a1a;border:1px solid #333;vertical-align:middle;margin-left:8px;}
+  #hudRight .fear > div{height:100%;background:linear-gradient(90deg,#3a3a3a,#8b2020);width:0%;transition:width .2s;}
+
+  #toast{
+    position:fixed;top:60px;left:50%;transform:translateX(-50%);
+    padding:9px 20px;background:rgba(0,0,0,0.85);border:1px solid #3a3a3a;
+    color:#d0a870;font-size:13px;letter-spacing:2px;z-index:55;pointer-events:none;
+    opacity:0;transition:opacity .35s;text-align:center;
+  }
+  #toast.show{opacity:1;}
+
+  #vortaro{background:rgba(0,0,0,0.96);z-index:80;}
+  #vortaro .settingsBox{width:680px;}
+  .wrow{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed #222;}
+  .wrow span:first-child{color:#d0a870;letter-spacing:2px;}
+  .wrow span:last-child{color:#9a9a9a;}
+
+  #ending{background:#000;z-index:90;}
+  #ending .endBox{max-width:800px;padding:40px;text-align:center;}
+  #ending h1{font-size:34px;letter-spacing:10px;color:#d0bca0;}
+  #ending p{font-size:14px;line-height:2;color:#8a8a8a;letter-spacing:1px;}
+
+  #fadeOverlay{
+    position:fixed;inset:0;background:#000;pointer-events:none;z-index:45;
+    opacity:0;transition:opacity .4s;
+  }
+  #fadeOverlay.on{opacity:1;}
+
+  /* Риджет «выход» при встраивании */
+  #embedExit{
+    position:fixed;bottom:14px;left:16px;font-size:11px;color:#5a4040;
+    letter-spacing:1.5px;z-index:40;pointer-events:none;
+  }
+  #embedExit b{color:#8b2020;}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <canvas id="game" width="960" height="600"></canvas>
+</div>
+
+<div id="fadeOverlay"></div>
+
+<div id="hud"><b id="hudRoom">VESTIBLO</b> &nbsp;|&nbsp; <span id="hudHint">[E] взаимодействие · [TAB] словарь · [ESC] настройки</span></div>
+<div id="hudRight">
+  <span id="hudItems"></span><br>
+  TIMO <span class="fear"><div id="fearBar"></div></span>
+</div>
+<div id="toast"></div>
+<div id="embedExit" class="hidden"><b>[ESC]</b> — выйти из клуба</div>
+
+<!-- МЕНЮ -->
+<div id="menu" class="panel">
+  <h1>VULPETO ABELETO</h1>
+  <h2>LA SILENTO</h2>
+  <button onclick="startGame()">НАЧАТЬ</button>
+  <button onclick="showSettings()">НАСТРОЙКИ</button>
+  <button onclick="showAbout()">ОБ ИГРЕ</button>
+  <button onclick="showHelp()">УПРАВЛЕНИЕ И ВВОД</button>
+  <div class="sub">
+    Klubo Vulpeto Abeleto · Эсперанто-клуб<br>
+    «Ni ne forgesu la vortojn. La vortoj memoras nin.»
+  </div>
+</div>
+
+<!-- НАСТРОЙКИ -->
+<div id="settingsPanel" class="panel hidden">
+  <div class="settingsBox">
+    <h3>НАСТРОЙКИ</h3>
+    <div class="tabs">
+      <button id="tabVid" class="active" onclick="switchTab('vid')">ВИДЕО</button>
+      <button id="tabAud" onclick="switchTab('aud')">ЗВУК</button>
+      <button id="tabGame" onclick="switchTab('game')">ИГРА</button>
+    </div>
+
+    <div id="tabContent-vid" class="tab-content active">
+      <div class="row"><label>Яркость</label><input type="range" id="setBrightness" min="0.4" max="2.2" step="0.05" value="1.15"><span class="val" id="vBrightness">1.15</span></div>
+      <div class="row"><label>Контрастность</label><input type="range" id="setContrast" min="0.5" max="2" step="0.05" value="1.15"><span class="val" id="vContrast">1.15</span></div>
+      <div class="row"><label>Насыщенность</label><input type="range" id="setSaturation" min="0" max="2" step="0.05" value="0.85"><span class="val" id="vSaturation">0.85</span></div>
+      <div class="row"><label>Радиус фонаря</label><input type="range" id="setLight" min="100" max="500" step="10" value="260"><span class="val" id="vLight">260</span></div>
+      <div class="row"><label>Темнота</label><input type="range" id="setDark" min="0.4" max="0.99" step="0.01" value="0.88"><span class="val" id="vDark">0.88</span></div>
+      <div class="row"><label>Зерно плёнки</label><input type="checkbox" id="setGrain" checked></div>
+      <div class="row"><label>Тряска экрана</label><input type="checkbox" id="setShake" checked></div>
+    </div>
+
+    <div id="tabContent-aud" class="tab-content">
+      <div class="row"><label>Общая громкость</label><input type="range" id="setVolume" min="0" max="1" step="0.05" value="0.45"><span class="val" id="vVolume">0.45</span></div>
+      <div class="row"><label>Эмбиент (гул)</label><input type="range" id="setDrone" min="0" max="1" step="0.05" value="0.6"><span class="val" id="vDrone">0.60</span></div>
+      <div class="row"><label>Шаги</label><input type="checkbox" id="setSteps" checked></div>
+      <div class="row"><label>Шёпот (при страхе)</label><input type="checkbox" id="setWhispers" checked></div>
+    </div>
+
+    <div id="tabContent-game" class="tab-content">
+      <div class="row"><label>Скорость игрока</label><input type="range" id="setSpeed" min="1" max="5" step="0.1" value="2.4"><span class="val" id="vSpeed">2.4</span></div>
+      <div class="row"><label>Преследователь</label><input type="checkbox" id="setPursuer" checked></div>
+      <div class="row"><label>Подсказки взаимодействия</label><input type="checkbox" id="setHints" checked></div>
+      <div class="row"><label>Показывать переводы</label><input type="checkbox" id="setTranslate" checked></div>
+      <div class="row"><label>Скорость Страха</label><input type="range" id="setFearRate" min="0.2" max="2" step="0.05" value="1"><span class="val" id="vFearRate">1.00</span></div>
+    </div>
+
+    <button class="closeBtn" onclick="hideSettings()">ЗАКРЫТЬ</button>
+    <button class="exitKursoBtn hidden" id="exitKursoBtn" onclick="exitToKurso()">← ВЕРНУТЬСЯ В KURSO</button>
+  </div>
+</div>
+
+<!-- СЛОВАРЬ -->
+<div id="vortaro" class="panel hidden">
+  <div class="settingsBox">
+    <h3>VORTARO · СЛОВАРЬ</h3>
+    <div id="vortaroList" style="max-height:60vh;overflow-y:auto;padding-right:8px;"></div>
+    <button class="closeBtn" onclick="toggleVortaro()">ЗАКРЫТЬ [TAB]</button>
+  </div>
+</div>
+
+<!-- ДИАЛОГ -->
+<div id="dialogBox" class="hidden">
+  <div id="dialogName"></div>
+  <div id="dialogText"></div>
+  <div id="dialogHint">[E] / [ПРОБЕЛ] — далее</div>
+</div>
+
+<!-- ВВОД -->
+<div id="promptBox" class="hidden">
+  <div id="promptText"></div>
+  <input id="promptInput" autocomplete="off" spellcheck="false" autocapitalize="off" />
+  <div id="promptError"></div>
+  <div id="promptHint">[ENTER] — подтвердить · [ESC] — отмена</div>
+  <div id="promptXnote">Буквы ĉ ĝ ĥ ĵ ŝ ŭ можно писать как <b>cx gx hx jx sx ux</b></div>
+</div>
+
+<!-- ФИНАЛ -->
+<div id="ending" class="panel hidden">
+  <div class="endBox">
+    <h1 id="endTitle">LA SILENTO FINIĜIS</h1>
+    <p id="endText"></p>
+    <button id="endBtn" style="margin:26px auto 0" onclick="location.reload()">РЕСТАРТ</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   VULPETO ABELETO — LA SILENTO
+   v2.0 — интеграция с KURSO через postMessage,
+          авто-старт в iframe, auto-exit по ESC,
+          связка с улыбкой Дарины и именем клуба
+   ========================================================= */
+
+/* ---------- Интеграция с KURSO ---------- */
+const IS_EMBEDDED = (window.parent && window.parent !== window);
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const TILE = 40, COLS = 24, ROWS = 15;
+const W = COLS * TILE, H = ROWS * TILE;
+
+/* ---------- Настройки ---------- */
+const SET = {
+  brightness: 1.15, contrast: 1.15, saturation: 0.85,
+  light: 260, dark: 0.88,
+  volume: 0.45,
+  drone: IS_EMBEDDED ? 0.25 : 0.6,  // тише в KURSO, чтобы не перебивать родителя
+  steps: true, whispers: true,
+  speed: 2.4, pursuer: true, hints: true, translate: true, grain: true,
+  shake: true, fearRate: 1.0
+};
+
+function applyFilters(){
+  canvas.style.filter =
+    `brightness(${SET.brightness}) contrast(${SET.contrast}) saturate(${SET.saturation})`;
+  SFX.setVolume(SET.volume);
+  SFX.setDrone(SET.drone);
+}
+
+/* ---------- Аудио ---------- */
+const SFX = {
+  ctx: null, master: null, droneGain: null, droneLevel: 0.6,
+  volume: 0.45, inited: false,
+
+  init(){
+    if(this.inited) return;
+    this.inited = true;
+    try{
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = this.volume;
+      this.master.connect(this.ctx.destination);
+      this.startDrone();
+    }catch(e){ console.warn('audio init failed', e); }
+  },
+  setVolume(v){ this.volume = v; if(this.master) this.master.gain.value = v; },
+  setDrone(v){
+    this.droneLevel = v;
+    if(this.droneGain){
+      const t = this.ctx.currentTime;
+      this.droneGain.gain.cancelScheduledValues(t);
+      this.droneGain.gain.setTargetAtTime(0.05 * v, t, 0.4);
+    }
+  },
+  startDrone(){
+    const c = this.ctx;
+    const g = c.createGain(); g.gain.value = 0.05 * this.droneLevel;
+    g.connect(this.master);
+    const o1 = c.createOscillator(); o1.type='sawtooth'; o1.frequency.value=41.2;
+    const o2 = c.createOscillator(); o2.type='sine'; o2.frequency.value=55.0;
+    const o3 = c.createOscillator(); o3.type='triangle'; o3.frequency.value=82.4;
+    const flt = c.createBiquadFilter(); flt.type='lowpass'; flt.frequency.value=180;
+    const lfo = c.createOscillator(); lfo.frequency.value=0.09;
+    const lfoG = c.createGain(); lfoG.gain.value=45;
+    lfo.connect(lfoG); lfoG.connect(flt.frequency);
+    o1.connect(flt); o2.connect(flt); o3.connect(flt); flt.connect(g);
+    o1.start(); o2.start(); o3.start(); lfo.start();
+    this.droneGain = g;
+  },
+  tone(freq, dur, type='sine', vol=0.14, slide=0){
+    if(!this.ctx) return;
+    const c = this.ctx, t = c.currentTime;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20,freq+slide), t+dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t+dur+0.05);
+  },
+  noise(dur, vol=0.2, lowpass=1200){
+    if(!this.ctx) return;
+    const c = this.ctx, t = c.currentTime;
+    const len = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * (1 - i/len);
+    const s = c.createBufferSource(); s.buffer = buf;
+    const f = c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=lowpass;
+    const g = c.createGain(); g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(this.master); s.start(t);
+  },
+  step(){ if(SET.steps) this.noise(0.06, 0.05, 700); },
+  blip(){ this.tone(520, 0.07, 'square', 0.06, -180); },
+  good(){ this.tone(440,0.1,'sine',0.12); setTimeout(()=>this.tone(660,0.18,'sine',0.12),90); },
+  bad(){ this.tone(150,0.5,'sawtooth',0.16,-90); this.noise(0.4,0.12,500); },
+  scare(){
+    this.noise(1.2, 0.35, 2600);
+    this.tone(880, 1.0, 'sawtooth', 0.2, -820);
+    if(this.droneGain){
+      const c = this.ctx, t = c.currentTime;
+      this.droneGain.gain.cancelScheduledValues(t);
+      this.droneGain.gain.setValueAtTime(0.35, t);
+      this.droneGain.gain.exponentialRampToValueAtTime(0.05 * this.droneLevel, t+2.5);
+    }
+  },
+  whisper(){ if(SET.whispers) this.noise(0.55, 0.075, 3400); },
+  secret(){
+    this.tone(300,0.2,'triangle',0.14);
+    setTimeout(()=>this.tone(400,0.2,'triangle',0.14),130);
+    setTimeout(()=>this.tone(620,0.4,'triangle',0.14),270);
+  },
+  pickup(){
+    this.tone(700,0.08,'sine',0.1);
+    setTimeout(()=>this.tone(900,0.14,'sine',0.1),70);
+  },
+  door(){
+    this.noise(0.5, 0.12, 400);
+    this.tone(90, 0.7, 'sawtooth', 0.1, -40);
+  },
+  type(){ this.tone(1200 + Math.random()*200, 0.015, 'square', 0.02); }
+};
+
+/* ---------- Словарь ---------- */
+const VORTARO = {
+  pordo:'дверь', ĉambro:'комната', lumo:'свет', vojo:'путь', timo:'страх',
+  ruĝa:'красный', blua:'синий', verda:'зелёный', flava:'жёлтый',
+  unu:'один', du:'два', tri:'три', kvar:'четыре', kvin:'пять',
+  vulpo:'лиса', abelo:'пчела', vulpeto:'лисёнок', abeleto:'пчёлка',
+  amikeco:'дружба', amiko:'друг', silento:'тишина', ŝlosilo:'ключ',
+  koro:'сердце', nokto:'ночь', stelo:'звезда', suno:'солнце',
+  paroli:'говорить', aŭdi:'слышать', atendi:'ждать', reveni:'вернуться',
+  libro:'книга', vorto:'слово', memoro:'память', muro:'стена',
+  mallumo:'темнота', hela:'светлый', nigra:'чёрный', blanka:'белый',
+  fidela:'верный', kuraĝo:'смелость', espero:'надежда', sonĝo:'сон',
+  fenestro:'окно', spegulo:'зеркало', bildo:'образ', ombro:'тень',
+  rideto:'улыбка'
+};
+const learned = new Set();
+
+function learn(word){
+  const w = word.toLowerCase();
+  if(VORTARO[w] && !learned.has(w)){
+    learned.add(w);
+    toast('NOVA VORTO · ' + w + ' — ' + VORTARO[w]);
+    SFX.blip();
+  }
+}
+
+/* ---------- X-система ---------- */
+function applyXSystem(str){
+  return str
+    .replace(/cx/g,'ĉ').replace(/Cx/g,'Ĉ')
+    .replace(/gx/g,'ĝ').replace(/Gx/g,'Ĝ')
+    .replace(/hx/g,'ĥ').replace(/Hx/g,'Ĥ')
+    .replace(/jx/g,'ĵ').replace(/Jx/g,'Ĵ')
+    .replace(/sx/g,'ŝ').replace(/Sx/g,'Ŝ')
+    .replace(/ux/g,'ŭ').replace(/Ux/g,'Ŭ');
+}
+
+/* ---------- Русские «двойники» → латиница ---------- */
+const HOMOGLYPHS = {
+  'а':'a','в':'v','е':'e','к':'k','м':'m','н':'h','о':'o','р':'p','с':'c',
+  'т':'t','у':'y','х':'x','ѕ':'s','і':'i','ј':'j',
+  'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C',
+  'Т':'T','У':'Y','Х':'X'
+};
+function normalizeHomoglyphs(str){
+  let out = '';
+  for(const ch of str) out += (HOMOGLYPHS[ch] || ch);
+  return out;
+}
+
+const CYR_TO_QWERTY = {
+  'й':'q','ц':'w','у':'e','к':'r','е':'t','н':'y','г':'u','ш':'i','щ':'o','з':'p','х':'[','ъ':']',
+  'ф':'a','ы':'s','в':'d','а':'f','п':'g','р':'h','о':'j','л':'k','д':'l','ж':';','э':"'",
+  'я':'z','ч':'x','с':'c','м':'v','и':'b','т':'n','ь':'m','б':',','ю':'.','ё':'`',
+  'Й':'Q','Ц':'W','У':'E','К':'R','Е':'T','Н':'Y','Г':'U','Ш':'I','Щ':'O','З':'P','Х':'{','Ъ':'}',
+  'Ф':'A','Ы':'S','В':'D','А':'F','П':'G','Р':'H','О':'J','Л':'K','Д':'L','Ж':':','Э':'"',
+  'Я':'Z','Ч':'X','С':'C','М':'V','И':'B','Т':'N','Ь':'M','Б':'<','Ю':'>','Ё':'~'
+};
+function cyrillicToQwerty(str){
+  let out = '';
+  for(const ch of str) out += (CYR_TO_QWERTY[ch] || ch);
+  return out;
+}
+
+function normalizeInput(raw){
+  let v = String(raw).replace(/\s+/g,' ').trim().toLowerCase();
+  v = normalizeHomoglyphs(v);
+  if(/[а-яё]/i.test(v)) v = cyrillicToQwerty(v).toLowerCase();
+  v = applyXSystem(v);
+  return v;
+}
+
+/* ---------- Записки ---------- */
+const NOTES = {
+  n_sxlosilo_pordo: {
+    title: 'NOTO · ŜLOSILO',
+    text: '«Jen nia unua vorto.\nŜlosilo.\nŜlosilo malfermas la unuan pordon.\nNe forgesu ĝin — ĝi revenos.»\n\n(Вот наше первое слово.\nКлюч.\nКлюч открывает первую дверь.\nНе забудь его — оно вернётся.)',
+    words: ['ŝlosilo','vorto','pordo']
+  },
+  n_enigmo: {
+    title: 'ENIGMO · ЗАГАДКА',
+    text: '«Mi estas malnova kiel la mondo,\nmi venas el la suno,\nsen mi vi ne vidas.\nKio mi estas?»\n\n(Я стар как мир,\nприхожу от солнца,\nбез меня ты не видишь.\nЧто я?)\n\nMalsupre iu skribis per krajono:\n«lumo»\n\n(Внизу кто-то дописал карандашом:\n«lumo».)',
+    words: ['suno','lumo','hela','vorto']
+  },
+  n_sxlosilo: {
+    title: 'NOTO · ŜLOSILOJ',
+    text: '«La vortoj estas ŝlosiloj.\nĈiu vorto malfermas alian pordon.\nSe vi perdiĝos — memoru la vortojn.»\n\n(Слова — это ключи.\nКаждое слово открывает другую дверь.\nЕсли заблудишься — вспомни слова.)',
+    words: ['vorto','ŝlosilo','pordo']
+  },
+  n_mallumo: {
+    title: 'NOTO · MALLUMO',
+    text: '«Ne timu la mallumon.\nĜi ne malamas vin.\nĜi simple atendas —\nke vi diru la ĝustan vorton.»\n\n(Не бойся темноты.\nОна не ненавидит тебя.\nОна просто ждёт, пока ты скажешь правильное слово.)',
+    words: ['mallumo','timo','atendi','vorto']
+  },
+  n_spegulo: {
+    title: 'NOTO · SPEGULO',
+    text: '«La spegulo montras ne vin,\nsed tion, kion vi forgesis.\nRigardu atente.»\n\n(Зеркало показывает не тебя,\nа то, что ты забыл. Смотри внимательно.)',
+    words: ['spegulo','bildo','ombro']
+  },
+  n_rideto: {
+    title: 'NOTO · RIDETO',
+    text: '«Estis virino en nia klubo.\nŜi havis la plej belan rideton —\nlarĝan, varman, kiel suno.\nKiam ajn mi perdis esperon —\nmi memoris ŝian rideton.»\n\n(В нашем клубе была женщина.\nУ неё была самая красивая улыбка —\nширокая, тёплая, как солнце.\nКогда я терял надежду —\nя вспоминал её улыбку.)\n\nMalsupre — алato: «Darina.»',
+    words: ['rideto','suno','espero','memoro']
+  }
+};
+
+/* ---------- Комнаты ---------- */
+const ROOMS = [
+  {
+    id: 'vestiblo',
+    name: 'VESTIBLO · Прихожая',
+    type: 'door',
+    answer: 'ŝlosilo',
+    hint: 'одно эсперантское слово',
+    question: 'ПЕРЕД ТОБОЙ ДВЕРЬ.\n\nНа ней выцарапано:\n«Kio malfermas ĉiun pordon?»\n(Что открывает любую дверь?)\n\nОтвет — одно эсперантское слово.',
+    map: [
+      "########################",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#.....##########.......#",
+      "#.....#........#.......#",
+      "#.....#...I....#.......#",
+      "#.....#........#.......#",
+      "#.....#........#.......#",
+      "#.....#........#.......#",
+      "#.....####S#####.......#",
+      "#......................#",
+      "#.P...............T....#",
+      "#...N..................D",
+      "########################"
+    ]
+  },
+  {
+    id: 'biblioteko',
+    name: 'BIBLIOTEKO · Библиотека',
+    type: 'door',
+    answer: 'lumo',
+    hint: 'одно эсперантское слово',
+    question: 'На пожелтевшей табличке выцарапано:\n\n«Mi estas malnova kiel la mondo,\nmi venas el la suno,\nsen mi vi ne vidas.\nKio mi estas?»\n\n(Я стар как мир,\nприхожу от солнца,\nбез меня ты не видишь.\nЧто я?)\n\nОтвет — одно эсперантское слово.',
+    map: [
+      "########################",
+      "#......................#",
+      "#..T...................#",
+      "#......................#",
+      "#....######............#",
+      "#....#....#............#",
+      "#....#.L..#............#",
+      "#....#....#............#",
+      "#....##.###............#",
+      "#......................#",
+      "#...........T..........#",
+      "#.P....................#",
+      "#......................#",
+      "#......................D",
+      "########################"
+    ]
+  },
+  {
+    id: 'koloro',
+    name: 'KOLORA ĈAMBRO · Цветная комната',
+    type: 'colors',
+    answer: ['G','R','Y','B'],
+    map: [
+      "########################",
+      "#......................#",
+      "#......................#",
+      "#....R.....B...........#",
+      "#......................#",
+      "#..............N.......#",
+      "#......................#",
+      "#......................#",
+      "#....G.....Y...........#",
+      "#......................#",
+      "#......................#",
+      "#.P....................#",
+      "#......................#",
+      "#......................D",
+      "########################"
+    ]
+  },
+  {
+    id: 'labirinto',
+    name: 'LABIRINTO · Лабиринт',
+    type: 'maze'
+  },
+  {
+    id: 'fino',
+    name: 'FINA ĈAMBRO · Последняя комната',
+    type: 'final',
+    answer: 'vulpeto abeleto',
+    hint: 'два имени через пробел',
+    map: [
+      "########################",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#.........N............#",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#......................#",
+      "#..........P...........#",
+      "#......................#",
+      "#......................#",
+      "########################"
+    ]
+  }
+];
+
+/* ---------- Состояние ---------- */
+const state = {
+  mode: 'menu',
+  room: 0,
+  grid: [],
+  player: { x: 0, y: 0, r: 11 },
+  npcs: [], items: [], notes: [],
+  pursuer: null,
+  colorSeq: [],
+  currentPlate: null,
+  plateLeaveTimer: 0,
+  inventory: new Set(),
+  fear: 0,
+  shakeAmt: 0,
+  flicker: 0,
+  scareTimer: 0,
+  time: 0,
+  stepTimer: 0,
+  doorCooldown: 0,
+  transitionLock: false,
+  flags: {
+    amulet: false, book: false,
+    metVulpeto: false, metAbeleto: false,
+    mazeDeaths: 0, door0: false, door1: false, colorsDone: false
+  },
+  dialogQueue: [],
+  dialogDone: null,
+  promptAnswer: null,
+  promptHint: '',
+  promptCallback: null,
+  promptError: false,
+  nearInteract: null,
+  finished: false
+};
+
+/* ---------- Утилиты ---------- */
+function hash(x, y){
+  const n = Math.sin(x*127.1 + y*311.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+function getTile(cx, cy){
+  if(cx<0||cy<0||cx>=COLS||cy>=ROWS) return '#';
+  if(!state.grid[cy]) return '#';
+  return state.grid[cy][cx];
+}
+function setTile(cx, cy, v){
+  if(cx>=0&&cy>=0&&cx<COLS&&cy<ROWS) state.grid[cy][cx] = v;
+}
+function toast(msg, ms=2400){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), ms);
+}
+function shake(a){ if(SET.shake) state.shakeAmt = Math.max(state.shakeAmt, a); }
+function fade(on){
+  const f = document.getElementById('fadeOverlay');
+  if(on) f.classList.add('on'); else f.classList.remove('on');
+}
+function updateHUD(){
+  document.getElementById('hudRoom').textContent = ROOMS[state.room].name;
+  const inv = Array.from(state.inventory).join(' · ');
+  document.getElementById('hudItems').textContent = inv ? '🎒 ' + inv : '';
+  document.getElementById('fearBar').style.width = state.fear.toFixed(0) + '%';
+}
+
+/* ---------- Лабиринт ---------- */
+function generateMaze(){
+  const g = Array.from({length: ROWS}, ()=> new Array(COLS).fill('#'));
+  const stack = [[1,1]];
+  g[1][1] = '.';
+  const dirs = [[0,-2],[0,2],[-2,0],[2,0]];
+  while(stack.length){
+    const [cx, cy] = stack[stack.length-1];
+    const opts = [];
+    for(const [dx,dy] of dirs){
+      const nx = cx+dx, ny = cy+dy;
+      if(nx>0 && nx<COLS-1 && ny>0 && ny<ROWS-1 && g[ny][nx] === '#'){
+        opts.push([nx, ny, cx+dx/2, cy+dy/2]);
+      }
+    }
+    if(opts.length){
+      const o = opts[(Math.random()*opts.length)|0];
+      g[o[3]][o[2]] = '.';
+      g[o[1]][o[0]] = '.';
+      stack.push([o[0], o[1]]);
+    } else stack.pop();
+  }
+  for(let i=0;i<22;i++){
+    const x = 2 + ((Math.random()*(COLS-4))|0);
+    const y = 2 + ((Math.random()*(ROWS-4))|0);
+    if(g[y][x] === '#' && Math.random() < 0.5){
+      const openSides = [g[y-1][x],g[y+1][x],g[y][x-1],g[y][x+1]].filter(v=>v==='.').length;
+      if(openSides >= 2) g[y][x] = '.';
+    }
+  }
+  g[1][2] = 'S';
+  for(let x=3; x<=21; x++) if(g[1][x] === '#') g[1][x] = '.';
+  for(let y=2; y<=13; y++) if(g[y][21] === '#') g[y][21] = '.';
+  if(g[1][11] === '#') g[1][11] = 'S';
+  g[7][11] = 'T';
+  g[7][12] = '.'; g[6][11] = '.'; g[8][11] = '.'; g[7][10] = '.';
+  g[13][21] = 'E';
+  g[1][1]   = 'P';
+  return g;
+}
+
+/* ---------- Загрузка комнаты ---------- */
+function loadRoom(idx){
+  state.room = idx;
+  const r = ROOMS[idx];
+  state.npcs = [];
+  state.items = [];
+  state.notes = [];
+  state.colorSeq = [];
+  state.currentPlate = null;
+  state.plateLeaveTimer = 0;
+  state.pursuer = null;
+  state.doorCooldown = 0;
+
+  if(r.type === 'maze'){
+    state.grid = generateMaze();
+  } else {
+    state.grid = r.map.map(row => row.split(''));
+  }
+
+  let noteIndex = 0;
+  const noteKeysPerRoom = {
+    'vestiblo': ['n_sxlosilo_pordo'],
+    'biblioteko': ['n_enigmo', 'n_sxlosilo', 'n_rideto'],
+    'labirinto': ['n_mallumo', 'n_spegulo']
+  };
+
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const t = state.grid[y][x];
+      if(t === 'P'){
+        state.player.x = x*TILE + TILE/2;
+        state.player.y = y*TILE + TILE/2;
+        state.grid[y][x] = '.';
+      } else if(t === 'N'){
+        state.npcs.push({ x: x*TILE+TILE/2, y: y*TILE+TILE/2, r: 13, room: r.id });
+        state.grid[y][x] = '.';
+      } else if(t === 'I'){
+        state.items.push({ x: x*TILE+TILE/2, y: y*TILE+TILE/2, r: 9, type: 'amulet', taken: false, label: 'Amuleto' });
+        state.grid[y][x] = '.';
+      } else if(t === 'L'){
+        state.items.push({ x: x*TILE+TILE/2, y: y*TILE+TILE/2, r: 9, type: 'book', taken: false, label: 'Libro' });
+        state.grid[y][x] = '.';
+      } else if(t === 'T'){
+        const keys = noteKeysPerRoom[r.id] || ['n_klubo'];
+        const noteKey = keys[noteIndex % keys.length];
+        noteIndex++;
+        state.notes.push({ x: x*TILE+TILE/2, y: y*TILE+TILE/2, r: 10, key: noteKey, taken: false });
+        state.grid[y][x] = '.';
+      }
+    }
+  }
+
+  if(r.type === 'maze' && SET.pursuer){
+    state.pursuer = {
+      x: 21*TILE+TILE/2, y: 1*TILE+TILE/2, r: 13,
+      speed: 0.65, path: [], timer: 0
+    };
+  }
+
+  state.fear = Math.max(state.fear, r.type === 'maze' ? 15 : 0);
+  updateHUD();
+}
+
+/* ---------- Коллизии ---------- */
+function solidAt(px, py){
+  const cx = Math.floor(px / TILE);
+  const cy = Math.floor(py / TILE);
+  const t = getTile(cx, cy);
+  if(t === 'S'){
+    setTile(cx, cy, '.');
+    SFX.secret();
+    shake(7);
+    toast('LA MURO MALFERMIĜIS... · стена открылась');
+    return false;
+  }
+  return t === '#';
+}
+
+function tryMove(dx, dy){
+  const p = state.player;
+  const nx = p.x + dx, ny = p.y + dy;
+  const r = p.r;
+  if(!solidAt(nx - r, p.y - r) && !solidAt(nx + r, p.y - r) &&
+     !solidAt(nx - r, p.y + r) && !solidAt(nx + r, p.y + r)){
+    p.x = nx;
+  }
+  if(!solidAt(p.x - r, ny - r) && !solidAt(p.x + r, ny - r) &&
+     !solidAt(p.x - r, ny + r) && !solidAt(p.x + r, ny + r)){
+    p.y = ny;
+  }
+}
+
+/* ---------- Двери ---------- */
+function checkDoor(){
+  if(state.transitionLock) return;
+  if(state.doorCooldown > 0) return;
+  if(state.mode !== 'play') return;
+  const p = state.player;
+  const pcx = Math.floor(p.x / TILE), pcy = Math.floor(p.y / TILE);
+  for(let dy=-1;dy<=1;dy++){
+    for(let dx=-1;dx<=1;dx++){
+      if(getTile(pcx+dx, pcy+dy) === 'D'){
+        const tx = (pcx+dx)*TILE + TILE/2;
+        const ty = (pcy+dy)*TILE + TILE/2;
+        if(Math.hypot(tx-p.x, ty-p.y) < TILE*1.1){
+          handleDoor();
+          return;
+        }
+      }
+    }
+  }
+}
+
+function handleDoor(){
+  if(state.mode === 'prompt' || state.mode === 'dialog') return;
+  state.doorCooldown = 70;
+  const r = ROOMS[state.room];
+
+  if(r.type === 'door'){
+    const flagKey = r.id === 'vestiblo' ? 'door0' : 'door1';
+    if(state.flags[flagKey]){ nextRoom(); return; }
+    openPrompt(r.question, r.answer, r.hint, (ok)=>{
+      if(ok){
+        state.flags[flagKey] = true;
+        learn(r.answer);
+        SFX.good();
+        toast('LA PORDO MALFERMIĜAS · дверь открывается');
+        setTimeout(nextRoom, 500);
+      } else {
+        SFX.bad(); shake(14); scareFlash();
+        state.fear = Math.min(100, state.fear + 12);
+      }
+    });
+  } else if(r.type === 'colors'){
+    if(state.flags.colorsDone){ nextRoom(); return; }
+    toast('LA PORDO SILENTAS... · наступи на плиты в правильном порядке.');
+  }
+}
+
+function nextRoom(){
+  if(state.transitionLock) return;
+  state.transitionLock = true;
+  fade(true);
+  SFX.door();
+  setTimeout(()=>{
+    if(state.room + 1 >= ROOMS.length){
+      endGame(false);
+      fade(false);
+      state.transitionLock = false;
+      return;
+    }
+    loadRoom(state.room + 1);
+    state.flicker = 40;
+    fade(false);
+    state.transitionLock = false;
+  }, 450);
+}
+
+/* ---------- Диалоги ---------- */
+function openDialog(name, lines, done){
+  if(state.mode === 'prompt') closePrompt(true);
+  state.mode = 'dialog';
+  state.dialogQueue = lines.slice();
+  state.dialogDone = done || null;
+  document.getElementById('dialogName').textContent = name;
+  document.getElementById('dialogBox').classList.remove('hidden');
+  nextDialogLine();
+}
+function nextDialogLine(){
+  if(state.dialogQueue.length === 0){
+    document.getElementById('dialogBox').classList.add('hidden');
+    state.mode = 'play';
+    const cb = state.dialogDone; state.dialogDone = null;
+    if(cb) cb();
+    return;
+  }
+  const line = state.dialogQueue.shift();
+  document.getElementById('dialogText').textContent = line;
+  SFX.blip();
+}
+
+/* ---------- Ввод ---------- */
+const promptInputEl = document.getElementById('promptInput');
+const promptErrorEl = document.getElementById('promptError');
+
+promptInputEl.addEventListener('input', ()=>{
+  const start = promptInputEl.selectionStart;
+  const before = promptInputEl.value;
+  const after = applyXSystem(before);
+  if(after !== before){
+    promptInputEl.value = after;
+    const diff = after.length - before.length;
+    const newPos = Math.max(0, start + diff);
+    try{ promptInputEl.setSelectionRange(newPos, newPos); }catch(e){}
+    SFX.type();
+  }
+  if(state.promptError){
+    state.promptError = false;
+    promptErrorEl.classList.remove('on');
+  }
+});
+
+promptInputEl.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    submitPrompt();
+  } else if(e.key === 'Escape'){
+    e.preventDefault();
+    closePrompt();
+    state.doorCooldown = 180;
+    state.promptCallback = null;
+  }
+});
+
+function openPrompt(text, answer, hint, cb){
+  state.mode = 'prompt';
+  state.promptAnswer = String(answer);
+  state.promptHint = hint || '';
+  state.promptCallback = cb;
+  state.promptError = false;
+  document.getElementById('promptText').textContent = text;
+  promptInputEl.value = '';
+  promptErrorEl.classList.remove('on');
+  promptErrorEl.textContent = '';
+  document.getElementById('promptBox').classList.remove('hidden');
+  const focusIt = ()=>{ try{ promptInputEl.focus(); promptInputEl.select(); }catch(e){} };
+  setTimeout(focusIt, 20);
+  setTimeout(focusIt, 120);
+  setTimeout(focusIt, 320);
+}
+
+function closePrompt(silent){
+  document.getElementById('promptBox').classList.add('hidden');
+  promptErrorEl.classList.remove('on');
+  state.promptError = false;
+  if(!silent) state.mode = 'play';
+}
+
+function submitPrompt(){
+  const raw = promptInputEl.value;
+  if(!raw.trim()){
+    showPromptError('Введи слово и нажми ENTER.');
+    return;
+  }
+  const val = normalizeInput(raw);
+  const target = normalizeInput(state.promptAnswer);
+
+  if(val === 'helpo' || val === 'help' || val === 'хелп' || val === 'хэлп'){
+    toast('HELPO · подсказка: ' + (state.promptHint || 'простое эсперантское слово.'), 3200);
+    SFX.blip(); return;
+  }
+  if(val === 'vortaro' || val === 'вортаро'){
+    toast('VORTARO · посмотри словарь клавишей TAB.', 3000);
+    SFX.blip(); return;
+  }
+
+  if(val === target){
+    closePrompt();
+    if(state.promptCallback) state.promptCallback(true);
+  } else {
+    let msg = 'MALĜUSTE · неверно. ';
+    if(val.length === target.length){
+      let wrong = '';
+      for(let i=0;i<target.length;i++){
+        if(val[i] !== target[i]) wrong += target[i];
+      }
+      if(wrong) msg += 'Проверь буквы: ' + wrong;
+      else msg += 'Почти получилось — попробуй ещё раз.';
+    } else {
+      msg += 'Попробуй ещё раз. ' + (state.promptHint || '');
+    }
+    showPromptError(msg);
+    SFX.bad();
+    shake(5);
+    state.fear = Math.min(100, state.fear + 4);
+  }
+}
+
+function showPromptError(msg){
+  state.promptError = true;
+  promptErrorEl.textContent = msg;
+  promptErrorEl.classList.add('on');
+}
+
+document.getElementById('promptBox').addEventListener('click', ()=>{
+  try{ promptInputEl.focus(); }catch(e){}
+});
+
+/* ---------- Взаимодействие ---------- */
+function findNearInteract(){
+  const p = state.player;
+  let best = null, bestD = 58;
+  for(const it of state.items){
+    if(it.taken) continue;
+    const d = Math.hypot(it.x-p.x, it.y-p.y);
+    if(d < bestD){ bestD = d; best = { type:'item', obj:it }; }
+  }
+  for(const n of state.npcs){
+    const d = Math.hypot(n.x-p.x, n.y-p.y);
+    if(d < bestD){ bestD = d; best = { type:'npc', obj:n }; }
+  }
+  for(const n of state.notes){
+    if(n.taken) continue;
+    const d = Math.hypot(n.x-p.x, n.y-p.y);
+    if(d < bestD){ bestD = d; best = { type:'note', obj:n }; }
+  }
+  return best;
+}
+
+function interact(){
+  const near = state.nearInteract;
+  if(!near){ toast('...nenio · ничего'); return; }
+
+  if(near.type === 'item'){
+    const it = near.obj;
+    it.taken = true;
+    if(it.type === 'amulet'){
+      state.flags.amulet = true;
+      state.inventory.add('Amuleto');
+      SET.light = Math.min(500, SET.light + 80);
+      document.getElementById('setLight').value = SET.light;
+      document.getElementById('vLight').textContent = SET.light;
+      applyFilters();
+      SFX.pickup();
+      ['lumo','hela','vorto','rideto'].forEach(learn);
+      openDialog('✦ AMULETO DE ABELETO', [
+        'Тёплый металлический амулет в форме пчелы.',
+        'На обратной стороне выцарапано слово — его трудно разобрать.',
+        'Но помимо букв — там что-то похожее на улыбку.',
+        'Широкую. Красивую. Как будто кто-то очень давно вырезал её здесь, чтобы помнить.',
+        'Тьма отступает на шаг.'
+      ]);
+    } else if(it.type === 'book'){
+      state.flags.book = true;
+      state.inventory.add('Libro');
+      SFX.pickup();
+      ['libro','vorto','memoro'].forEach(learn);
+      openDialog('✦ LIBRO · КНИГА', [
+        'Ты берёшь книгу. Обложка стёрлась, но читается: «Vortoj».',
+        'Несколько страниц вырвано. Осталось одно предложение:',
+        '«La vortoj estas ŝlosiloj. Ĉiu vorto malfermas alian pordon.»',
+        '(Слова — ключи. Каждое слово открывает другую дверь.)',
+        'На форзаце — маленький рисунок. Женская улыбка. Широкая. Красивая.'
+      ]);
+    }
+    updateHUD();
+    return;
+  }
+
+  if(near.type === 'note'){
+    const n = near.obj;
+    n.taken = true;
+    const note = NOTES[n.key];
+    if(note){
+      note.words.forEach(learn);
+      SFX.blip();
+      openDialog(note.title, [note.text]);
+    }
+    updateHUD();
+    return;
+  }
+
+  if(near.type === 'npc'){
+    talkTo(near.obj);
+    return;
+  }
+}
+
+function talkTo(npc){
+  const room = ROOMS[state.room].id;
+
+  if(room === 'vestiblo'){
+    if(!state.flags.metVulpeto){
+      state.flags.metVulpeto = true;
+      ['vulpo','vulpeto','pordo','timo','vorto','memoro'].forEach(learn);
+      openDialog('VULPETO', [
+        'Маленькая лиса сидит в углу. Её глаза — как две дыры.',
+        '«Vi venis... Vi venis al la Vestiblo.»',
+        '«Ты пришёл. В прихожую. Здесь всё начинается.»',
+        '',
+        '«La pordo ne malfermiĝas per forto.»',
+        '«Дверь не открывается силой. Она открывается словом.»',
+        '',
+        '«Kio malfermas ĉiun pordon?»',
+        '«Что открывает любую дверь?»',
+        '',
+        '«Serĉu la noton en la ĉambro.»',
+        '«Найди записку в комнате. В ней ответ.»',
+        '',
+        '«Nur unu vorto. Esperanta. Simpla.»',
+        '«Только одно слово. Эсперантское. Простое.»',
+        '',
+        '«Vi estas la dek-tria, ĉu ne?»',
+        '«Ты тринадцатый, да?»',
+        '',
+        '«Ŝi atendis vin. Ni atendis vin.»',
+        '«Она ждала тебя. Мы ждали тебя.»'
+      ]);
+    } else {
+      openDialog('VULPETO', [
+        '«La pordo atendas la vorton.»',
+        '«Дверь ждёт слово.»',
+        state.flags.door0
+          ? '«Vi ĝin trovis. Bone.»'
+          : '«Serĉu la noton. Ŝi scias.»',
+        '«Sed atentu... io sekvas vin.»',
+        '«Но осторожно... что-то идёт за тобой.»'
+      ]);
+    }
+  }
+
+  else if(room === 'biblioteko'){
+    ['libro','vorto','memoro','suno','lumo','rideto'].forEach(learn);
+    openDialog('VOĈO EN LA BIBLIOTEKO', [
+      'Никого нет. Только шёпот книг.',
+      'Одна из них падает с полки. На странице — загадка.',
+      '«Kio estas malnova kiel la mondo,\nvenas el la suno,\nsen ĝi vi ne vidas?»',
+      '',
+      'Пустой голос шепчет из-под потолка:',
+      '«Serĉu la noton, kiun iu lasis.»',
+      '«La noto memoras la respondon.»',
+      '',
+      'И ещё тише:',
+      '«Ŝi havis la plej belan rideton...»',
+      '«У неё была самая красивая улыбка...»'
+    ]);
+  }
+
+  else if(room === 'koloro'){
+    if(!state.flags.metAbeleto){
+      state.flags.metAbeleto = true;
+      ['verda','ruĝa','flava','blua','abelo','abeleto','rideto'].forEach(learn);
+      openDialog('ABELETO', [
+        'Пчёлка парит в воздухе, крылья гудят как старый трансформатор.',
+        '«Vi aŭdas min? Bonvolu aŭdi min.»',
+        '«Ты слышишь меня? Пожалуйста, услышь меня.»',
+        '',
+        '«La koloroj montras la vojon.»',
+        '«Цвета показывают путь.»',
+        '',
+        '«VERDA. Poste RUĜA. Poste FLAVA. Fine BLUA.»',
+        '«Зелёный. Потом красный. Потом жёлтый. Наконец синий.»',
+        '',
+        '«Memoru la ordon: V, R, F, B.»',
+        '',
+        '«Kaj memoru rideton.»',
+        '«И помни улыбку.»',
+        '«Ĝi estas la plej grava.»'
+      ]);
+    } else {
+      openDialog('ABELETO', [
+        '«VERDA, RUĜA, FLAVA, BLUA.»',
+        '«Зелёный, красный, жёлтый, синий.»',
+        state.flags.amulet
+          ? '«Vi portas la Amuleton... Vi estas unu el ni.»'
+          : '«Serĉu la lumon en la malnovaj muroj.»'
+      ]);
+    }
+  }
+
+  else if(room === 'fino'){
+    ['amikeco','amiko','silento','koro','espero','fidela','rideto'].forEach(learn);
+    openDialog('ABELETO KAJ VULPETO', [
+      'Они стоят рядом — лисёнок и пчёлка. Тьма вокруг сгущается.',
+      '«Vi trapasis la Labirinton. Vi aŭdis la Silenton.»',
+      '«Ты прошёл лабиринт. Ты услышал Тишину.»',
+      '',
+      '«Nun unu lasta demando.»',
+      '«Теперь последний вопрос.»',
+      '',
+      '«Kiel nomiĝas nia klubo?»',
+      '«Как называется наш клуб?»',
+      '',
+      '«Skribu du vortojn — niajn nomojn — apartigitajn per spaco.»',
+      '«Напиши два слова — наши имена — через пробел.»'
+    ], ()=>{
+      setTimeout(()=>{
+        openPrompt(
+          '«Kiel nomiĝas nia klubo?»\n(Как называется наш клуб?)\n\nДва имени, разделённые пробелом.',
+          'vulpeto abeleto',
+          'два имени через пробел',
+          (ok)=>{
+            if(ok){ SFX.good(); endGame(true); }
+            else {
+              SFX.bad(); shake(16); scareFlash();
+              state.fear = Math.min(100, state.fear + 20);
+              setTimeout(()=>{
+                openPrompt(
+                  '«Kiel nomiĝas nia klubo?»\n\nПодумай о тех, кто стоит перед тобой.',
+                  'vulpeto abeleto',
+                  'два имени через пробел',
+                  (ok2)=>{
+                    if(ok2) endGame(true);
+                    else { SFX.bad(); shake(20); scareFlash(); }
+                  }
+                );
+              }, 900);
+            }
+          }
+        );
+      }, 300);
+    });
+  }
+}
+
+/* ---------- Вспышки ---------- */
+function scareFlash(){
+  state.scareTimer = 22;
+  SFX.scare();
+  shake(20);
+}
+
+/* ---------- Обновление ---------- */
+function update(dt){
+  state.time += dt;
+  if(state.doorCooldown > 0) state.doorCooldown -= dt;
+  if(state.scareTimer > 0) state.scareTimer -= dt;
+  if(state.flicker > 0) state.flicker -= dt;
+  if(state.shakeAmt > 0) state.shakeAmt *= 0.88;
+
+  if(state.mode !== 'play') return;
+
+  const p = state.player;
+  const sp = SET.speed * dt;
+  let moved = false;
+
+  let dx = 0, dy = 0;
+  if(keys['w'] || keys['ц'] || keys['arrowup']) dy -= 1;
+  if(keys['s'] || keys['ы'] || keys['arrowdown']) dy += 1;
+  if(keys['a'] || keys['ф'] || keys['arrowleft']) dx -= 1;
+  if(keys['d'] || keys['в'] || keys['arrowright']) dx += 1;
+  if(dx && dy){ dx *= 0.707; dy *= 0.707; }
+  if(dx || dy){
+    tryMove(dx * sp, dy * sp);
+    moved = true;
+  }
+
+  if(moved){
+    state.stepTimer -= dt;
+    if(state.stepTimer <= 0){ SFX.step(); state.stepTimer = 22; }
+  }
+
+  checkDoor();
+  checkPlates();
+
+  const pcx = Math.floor(p.x / TILE), pcy = Math.floor(p.y / TILE);
+  if(getTile(pcx, pcy) === 'E'){
+    SFX.good();
+    toast('VI ESCAPIS... · ты выбрался');
+    state.flicker = 60;
+    state.fear = Math.max(0, state.fear - 25);
+    setTimeout(()=>{ loadRoom(4); updateHUD(); }, 400);
+  }
+
+  if(state.pursuer) updatePursuer(dt);
+  updateFear(dt);
+  state.nearInteract = findNearInteract();
+}
+
+/* ---------- Страх ---------- */
+function updateFear(dt){
+  let rate = 0;
+  if(state.pursuer){
+    const d = Math.hypot(state.pursuer.x - state.player.x, state.pursuer.y - state.player.y);
+    if(d < 260) rate += 0.8 * (1 - d/260);
+  }
+  const rtype = ROOMS[state.room].type;
+  if(rtype === 'maze') rate += 0.16;
+  else if(rtype === 'door' && state.room === 0) rate -= 0.35;
+  if(state.flags.amulet) rate -= 0.12;
+  if(state.flags.book) rate -= 0.08;
+  rate *= SET.fearRate;
+
+  if(rate > 0) state.fear = Math.min(100, state.fear + rate * dt);
+  else state.fear = Math.max(0, state.fear + rate * dt * 0.6);
+
+  if(state.fear > 55 && SET.whispers){
+    if(Math.random() < 0.0025 * dt * ((state.fear - 55)/45)) SFX.whisper();
+  }
+  if(state.fear > 80 && Math.random() < 0.01 * dt) shake(2);
+
+  document.getElementById('fearBar').style.width = state.fear.toFixed(0) + '%';
+}
+
+/* ---------- Плиты ---------- */
+const PLATE_COLORS = { R:'#c03838', G:'#3a9a4a', B:'#3a5ac0', Y:'#c0a838' };
+
+function checkPlates(){
+  if(ROOMS[state.room].type !== 'colors') return;
+  if(state.flags.colorsDone) return;
+
+  const p = state.player;
+  const cx = Math.floor(p.x / TILE), cy = Math.floor(p.y / TILE);
+  const t = getTile(cx, cy);
+  const isPlate = 'RGBY'.includes(t);
+
+  if(isPlate){
+    state.plateLeaveTimer = 0;
+    if(state.currentPlate !== t){
+      state.currentPlate = t;
+      state.colorSeq.push(t);
+      SFX.blip();
+      const need = ROOMS[state.room].answer;
+      const seq = state.colorSeq;
+      let ok = true;
+      for(let i=0;i<seq.length;i++){
+        if(seq[i] !== need[i]){ ok = false; break; }
+      }
+      if(!ok){
+        SFX.bad(); shake(12); scareFlash();
+        state.fear = Math.min(100, state.fear + 10);
+        toast('MALĜUSTE! · неверно. Порядок сброшен.');
+        state.colorSeq = [];
+      } else if(seq.length === need.length){
+        state.flags.colorsDone = true;
+        SFX.good();
+        toast('LA PORDO MALFERMIĜAS · дверь открыта!');
+        state.flicker = 50;
+        state.fear = Math.max(0, state.fear - 15);
+      }
+    }
+  } else {
+    state.plateLeaveTimer += 1;
+    if(state.plateLeaveTimer > 15){
+      state.currentPlate = null;
+    }
+  }
+}
+
+/* ---------- Преследователь ---------- */
+function updatePursuer(dt){
+  const pu = state.pursuer;
+  const p = state.player;
+  pu.timer -= dt;
+
+  if(pu.timer <= 0){
+    pu.timer = 28;
+    const sx = Math.floor(pu.x/TILE), sy = Math.floor(pu.y/TILE);
+    const tx = Math.floor(p.x/TILE),  ty = Math.floor(p.y/TILE);
+    pu.path = bfsPath(sx, sy, tx, ty);
+  }
+
+  if(pu.path && pu.path.length > 1){
+    const [nx, ny] = pu.path[1];
+    const gx = nx*TILE + TILE/2, gy = ny*TILE + TILE/2;
+    const ang = Math.atan2(gy - pu.y, gx - pu.x);
+    const step = pu.speed * dt * 1.15;
+    pu.x += Math.cos(ang) * step;
+    pu.y += Math.sin(ang) * step;
+    if(Math.hypot(gx-pu.x, gy-pu.y) < 3){ pu.path.shift(); }
+  }
+
+  if(Math.hypot(pu.x - p.x, pu.y - p.y) < 26){
+    SFX.scare(); shake(30); scareFlash();
+    state.flags.mazeDeaths++;
+    state.fear = Math.min(100, state.fear + 30);
+    toast('ĜI KAPTIS VIN... · оно поймало тебя');
+    setTimeout(()=>{
+      loadRoom(3);
+      updateHUD();
+      toast('Vi rekomencas en la Labirinto.');
+    }, 700);
+  }
+}
+
+function bfsPath(sx, sy, tx, ty){
+  if(sx===tx && sy===ty) return [[sx,sy]];
+  const q = [[sx,sy]];
+  const prev = {};
+  prev[sx+','+sy] = null;
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+  let found = false;
+
+  while(q.length && !found){
+    const [x,y] = q.shift();
+    for(const [dx,dy] of dirs){
+      const nx = x+dx, ny = y+dy;
+      if(nx<0||ny<0||nx>=COLS||ny>=ROWS) continue;
+      const k = nx+','+ny;
+      if(k in prev) continue;
+      const t = state.grid[ny][nx];
+      if(t === '#') continue;
+      prev[k] = x+','+y;
+      if(nx===tx && ny===ty){ found = true; break; }
+      q.push([nx,ny]);
+    }
+  }
+  if(!(tx+','+ty in prev)) return null;
+
+  const path = [];
+  let cur = tx+','+ty;
+  while(cur){
+    const [cx,cy] = cur.split(',').map(Number);
+    path.push([cx,cy]);
+    cur = prev[cur];
+  }
+  path.reverse();
+  return path;
+}
+
+/* ---------- Отрисовка ---------- */
+const noiseCanvas = (()=>{
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const g = c.getContext('2d');
+  const id = g.createImageData(128,128);
+  for(let i=0;i<id.data.length;i+=4){
+    const v = Math.random()*255;
+    id.data[i] = id.data[i+1] = id.data[i+2] = v;
+    id.data[i+3] = 255;
+  }
+  g.putImageData(id,0,0);
+  return c;
+})();
+
+function drawTile(x, y, t){
+  const px = x*TILE, py = y*TILE;
+  const n = hash(x,y);
+
+  if(t === '#' || t === 'S'){
+    ctx.fillStyle = n > 0.5 ? '#2d2d3a' : '#282834';
+    ctx.fillRect(px, py, TILE, TILE);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillRect(px, py, TILE, 2);
+    ctx.fillRect(px, py, 2, TILE);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(px, py+TILE-3, TILE, 3);
+    if(n > 0.7){
+      ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(px + 8 + n*10, py + 6);
+      ctx.lineTo(px + 18 + n*8, py + 28);
+      ctx.lineTo(px + 12 + n*6, py + 36);
+      ctx.stroke();
+    }
+    if(t === 'S'){
+      const breathe = (Math.sin(state.time*0.03 + x*2 + y) * 0.5 + 0.5);
+      ctx.fillStyle = 'rgba(180,60,60,' + (0.02 + breathe*0.035) + ')';
+      ctx.fillRect(px, py, TILE, TILE);
+    }
+  }
+  else if(t === 'D'){
+    ctx.fillStyle = '#3a2418';
+    ctx.fillRect(px, py, TILE, TILE);
+    const open0 = ROOMS[state.room].id === 'vestiblo' && state.flags.door0;
+    const open1 = ROOMS[state.room].id === 'biblioteko' && state.flags.door1;
+    const openC = ROOMS[state.room].type === 'colors' && state.flags.colorsDone;
+    ctx.strokeStyle = (open0 || open1 || openC) ? '#8a7a4a' : '#6a3a1a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px+3, py+3, TILE-6, TILE-6);
+    ctx.fillStyle = '#8a7a3a';
+    ctx.beginPath();
+    ctx.arc(px+TILE-10, py+TILE/2, 3, 0, 7);
+    ctx.fill();
+  }
+  else if(t === 'E'){
+    ctx.fillStyle = '#0e2a16';
+    ctx.fillRect(px, py, TILE, TILE);
+    const g = 0.5 + Math.sin(state.time*0.08)*0.25;
+    ctx.fillStyle = 'rgba(80,220,110,' + g + ')';
+    ctx.fillRect(px+5, py+5, TILE-10, TILE-10);
+    ctx.fillStyle = 'rgba(180,255,200,' + (g*0.6) + ')';
+    ctx.fillRect(px+14, py+14, TILE-28, TILE-28);
+  }
+  else if('RGBY'.includes(t)){
+    const col = PLATE_COLORS[t];
+    ctx.fillStyle = '#14141c';
+    ctx.fillRect(px, py, TILE, TILE);
+    const active = state.colorSeq.includes(t);
+    ctx.fillStyle = col;
+    ctx.globalAlpha = active ? 0.95 : 0.6;
+    ctx.fillRect(px+5, py+5, TILE-10, TILE-10);
+    ctx.globalAlpha = 1;
+    if(active){
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px+2, py+2, TILE-4, TILE-4);
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px+2, py+2, TILE-4, TILE-4);
+    }
+  }
+  else {
+    ctx.fillStyle = n > 0.5 ? '#1c1c26' : '#181822';
+    ctx.fillRect(px, py, TILE, TILE);
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px+0.5, py+0.5, TILE-1, TILE-1);
+    if(n > 0.94){
+      ctx.fillStyle = 'rgba(150,50,50,0.4)';
+      ctx.fillRect(px + n*20, py + n*26, 4, 3);
+    }
+    if(n > 0.97){
+      ctx.fillStyle = 'rgba(200,180,120,0.15)';
+      ctx.beginPath();
+      ctx.arc(px + n*30, py + n*30, 1.5, 0, 7);
+      ctx.fill();
+    }
+  }
+}
+
+function render(){
+  ctx.save();
+
+  if(state.shakeAmt > 0.4){
+    ctx.translate(
+      (Math.random()-0.5) * state.shakeAmt,
+      (Math.random()-0.5) * state.shakeAmt
+    );
+  }
+
+  ctx.fillStyle = '#050508';
+  ctx.fillRect(-40, -40, W+80, H+80);
+
+  if(!state.grid.length){ ctx.restore(); return; }
+
+  const p = state.player;
+
+  const visibleR = SET.light * 1.8;
+  const cxMin = Math.max(0, Math.floor((p.x - visibleR)/TILE));
+  const cxMax = Math.min(COLS-1, Math.ceil((p.x + visibleR)/TILE));
+  const cyMin = Math.max(0, Math.floor((p.y - visibleR)/TILE));
+  const cyMax = Math.min(ROWS-1, Math.ceil((p.y + visibleR)/TILE));
+
+  for(let y=cyMin;y<=cyMax;y++){
+    for(let x=cxMin;x<=cxMax;x++){
+      drawTile(x, y, state.grid[y][x]);
+    }
+  }
+
+  for(const n of state.notes){
+    if(n.taken) continue;
+    const pulse = 0.6 + Math.sin(state.time*0.09 + n.x)*0.35;
+    ctx.fillStyle = 'rgba(230,220,160,' + pulse + ')';
+    ctx.fillRect(n.x-7, n.y-5, 14, 10);
+    ctx.strokeStyle = 'rgba(180,170,110,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(n.x-7, n.y-5, 14, 10);
+    ctx.fillStyle = 'rgba(90,80,60,0.7)';
+    ctx.fillRect(n.x-5, n.y-3, 10, 1);
+    ctx.fillRect(n.x-5, n.y, 10, 1);
+    ctx.fillRect(n.x-5, n.y+3, 6, 1);
+  }
+
+  for(const it of state.items){
+    if(it.taken) continue;
+    const pulse = 0.6 + Math.sin(state.time*0.1)*0.4;
+    if(it.type === 'amulet'){
+      ctx.fillStyle = 'rgba(230,180,70,' + pulse + ')';
+      ctx.beginPath(); ctx.arc(it.x, it.y, 9, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,240,170,' + (pulse*0.85) + ')';
+      ctx.beginPath(); ctx.arc(it.x, it.y, 4.5, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(230,180,70,0.35)';
+      ctx.beginPath(); ctx.arc(it.x, it.y, 18 + Math.sin(state.time*0.06)*4, 0, 7); ctx.stroke();
+    } else if(it.type === 'book'){
+      ctx.fillStyle = 'rgba(160,90,60,' + pulse + ')';
+      ctx.fillRect(it.x-9, it.y-12, 18, 24);
+      ctx.strokeStyle = 'rgba(230,180,120,0.6)';
+      ctx.strokeRect(it.x-9, it.y-12, 18, 24);
+      ctx.fillStyle = 'rgba(240,220,180,0.5)';
+      ctx.fillRect(it.x-6, it.y-8, 12, 1);
+      ctx.fillRect(it.x-6, it.y-5, 12, 1);
+      ctx.strokeStyle = 'rgba(160,90,60,0.35)';
+      ctx.beginPath(); ctx.arc(it.x, it.y, 20 + Math.sin(state.time*0.06)*4, 0, 7); ctx.stroke();
+    }
+  }
+
+  for(const n of state.npcs){
+    ctx.fillStyle = '#1e141a';
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#6a2e2e';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 7); ctx.stroke();
+    const blink = Math.sin(state.time*0.05 + n.x) > 0.94 ? 0 : 1;
+    if(blink){
+      ctx.fillStyle = '#d84a4a';
+      ctx.beginPath(); ctx.arc(n.x-4, n.y-2, 2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x+4, n.y-2, 2, 0, 7); ctx.fill();
+    }
+  }
+
+  if(state.pursuer){
+    const pu = state.pursuer;
+    ctx.fillStyle = 'rgba(0,0,0,0.9)';
+    ctx.beginPath(); ctx.arc(pu.x, pu.y, pu.r + Math.sin(state.time*0.2)*1.5, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(200,30,30,0.95)';
+    ctx.beginPath(); ctx.arc(pu.x-4, pu.y-2, 2.6, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(pu.x+4, pu.y-2, 2.6, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(120,0,0,0.55)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(pu.x, pu.y, pu.r+8, 0, 7); ctx.stroke();
+  }
+
+  const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 90);
+  glow.addColorStop(0, 'rgba(255,240,215,0.35)');
+  glow.addColorStop(1, 'rgba(255,240,215,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(p.x-90, p.y-90, 180, 180);
+
+  ctx.fillStyle = '#d8d0c0';
+  ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath(); ctx.arc(p.x-4, p.y-3, 2.2, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(p.x+4, p.y-3, 2.2, 0, 7); ctx.fill();
+
+  if(SET.hints && state.nearInteract){
+    const obj = state.nearInteract.obj;
+    const bob = Math.sin(state.time*0.1)*2.5;
+    const y = obj.y - 26 + bob;
+    ctx.fillStyle = 'rgba(240,220,150,0.9)';
+    ctx.font = 'bold 13px "Courier New",monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('[E]', obj.x, y);
+    ctx.strokeStyle = 'rgba(240,220,150,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(obj.x - 12, y + 4);
+    ctx.lineTo(obj.x + 12, y + 4);
+    ctx.stroke();
+    ctx.textAlign = 'left';
+  }
+
+  let lightR = SET.light;
+  if(state.flicker > 0) lightR *= (0.7 + Math.random()*0.5);
+  if(state.pursuer){
+    const d = Math.hypot(state.pursuer.x - p.x, state.pursuer.y - p.y);
+    if(d < 200) lightR *= 0.88 + Math.random()*0.15;
+  }
+  lightR *= 1 + Math.sin(state.time*0.04)*0.015;
+
+  const darkness = state.flags.amulet ? SET.dark * 0.94 : SET.dark;
+  const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, lightR);
+  grad.addColorStop(0.00, 'rgba(0,0,0,0)');
+  grad.addColorStop(0.55, 'rgba(0,0,0,' + (darkness*0.10) + ')');
+  grad.addColorStop(0.85, 'rgba(0,0,0,' + (darkness*0.45) + ')');
+  grad.addColorStop(1.00, 'rgba(0,0,0,' + darkness + ')');
+  ctx.fillStyle = grad;
+  ctx.fillRect(-40, -40, W+80, H+80);
+
+  const vg = ctx.createRadialGradient(W/2, H/2, H*0.35, W/2, H/2, H*0.9);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(0,0,0,0.45)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(-40, -40, W+80, H+80);
+
+  if(state.fear > 30){
+    const fa = ((state.fear - 30) / 70) * 0.28;
+    const fg = ctx.createRadialGradient(W/2, H/2, H*0.15, W/2, H/2, H*0.85);
+    fg.addColorStop(0, 'rgba(0,0,0,0)');
+    fg.addColorStop(1, 'rgba(140,0,0,' + fa + ')');
+    ctx.fillStyle = fg;
+    ctx.fillRect(-40, -40, W+80, H+80);
+  }
+
+  if(SET.grain){
+    ctx.globalAlpha = 0.03;
+    const ox = -Math.random()*128, oy = -Math.random()*128;
+    for(let gx=ox; gx<W; gx+=128){
+      for(let gy=oy; gy<H; gy+=128){
+        ctx.drawImage(noiseCanvas, gx, gy);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  if(state.scareTimer > 0){
+    ctx.fillStyle = 'rgba(140,0,0,' + (state.scareTimer/22 * 0.55) + ')';
+    ctx.fillRect(-40,-40,W+80,H+80);
+  }
+
+  ctx.restore();
+}
+
+/* ---------- Цикл ---------- */
+let last = 0;
+function loop(t){
+  requestAnimationFrame(loop);
+  const dt = Math.min(50, t - last) / 16.667;
+  last = t;
+  try{
+    update(dt);
+    if(state.grid.length) render();
+  }catch(e){
+    console.error('loop error:', e);
+  }
+}
+
+/* ---------- Клавиатура ---------- */
+const keys = {};
+window.addEventListener('keydown', (e)=>{
+  if(state.mode === 'prompt'){
+    if(e.key === 'Tab') e.preventDefault();
+    return;
+  }
+
+  const k = e.key.toLowerCase();
+  keys[k] = true;
+
+  if(state.mode === 'dialog'){
+    if(k === 'e' || k === ' ' || k === 'enter'){ e.preventDefault(); nextDialogLine(); }
+    return;
+  }
+
+  if(k === 'escape'){
+    e.preventDefault();
+    const sp = document.getElementById('settingsPanel');
+    if(!sp.classList.contains('hidden')){ hideSettings(); return; }
+    if(IS_EMBEDDED){
+      // В KURSO ESC — выход из клуба
+      exitToKurso();
+      return;
+    }
+    showSettings();
+    return;
+  }
+
+  if(state.mode !== 'play') return;
+
+  if(k === 'e'){ e.preventDefault(); interact(); }
+  if(k === 'tab'){ e.preventDefault(); toggleVortaro(); }
+  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+});
+window.addEventListener('keyup', (e)=>{ keys[e.key.toLowerCase()] = false; });
+
+/* ---------- Меню / UI ---------- */
+function startGame(){
+  SFX.init();
+  document.getElementById('menu').classList.add('hidden');
+  state.mode = 'play';
+  loadRoom(0);
+  updateHUD();
+  setTimeout(()=>{
+    const intro = IS_EMBEDDED ? [
+      'Ты внутри клуба.',
+      'Только запах пыли и гул где-то в стенах.',
+      'И слово, застрявшее в горле — оно вертится, но не выходит.',
+      '',
+      'Напоминание: буквы ĉ ĝ ĥ ĵ ŝ ŭ можно вводить',
+      'как cx gx hx jx sx ux — игра сама их превратит.',
+      '',
+      'Иди вправо. Поговори с тем, кто ждёт. Дверь ждёт ответа.',
+      'Клуб знает, кто ты. Тринадцатый.'
+    ] : [
+      'Ты не помнишь, как оказался здесь.',
+      'Только запах пыли и гул где-то в стенах.',
+      'И слово, застрявшее в горле — оно вертится, но не выходит.',
+      '',
+      'Напоминание: буквы ĉ ĝ ĥ ĵ ŝ ŭ можно вводить',
+      'как cx gx hx jx sx ux — игра сама их превратит.',
+      '(Подробнее — в меню «Управление и ввод».)',
+      '',
+      'Иди вправо. Поговори с тем, кто ждёт. Дверь ждёт ответа.'
+    ];
+    openDialog('???', intro);
+  }, 400);
+}
+
+function showSettings(){
+  document.getElementById('settingsPanel').classList.remove('hidden');
+}
+function hideSettings(){
+  document.getElementById('settingsPanel').classList.add('hidden');
+}
+function switchTab(tab){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('tabContent-' + tab).classList.add('active');
+}
+
+function showAbout(){
+  openDialog('PRI LA LUDO · ОБ ИГРЕ', [
+    'VULPETO ABELETO — LA SILENTO',
+    '',
+    'Хоррор-игра эсперанто-клуба Vulpeto Abeleto.',
+    'Ты попал в заброшенное здание клуба.',
+    'Всё, что осталось — слова. Слова и тишина.',
+    '',
+    'Изучай эсперантские слова — они открывают двери.',
+    'Читай записки — в них ответы и подсказки.',
+    'Остерегайся Страха: он растёт в темноте.',
+    '',
+    'Здесь есть секреты, которые сильно облегчат путь.',
+    'Здесь есть несколько концовок.',
+    '',
+    '«La vortoj memoras nin, eĉ kiam ni forgesas ilin.»',
+    '(Слова помнят нас, даже когда мы забываем их.)'
+  ], ()=>{ document.getElementById('menu').classList.remove('hidden'); });
+}
+
+function showHelp(){
+  openDialog('HELPO · УПРАВЛЕНИЕ И ВВОД', [
+    '─── УПРАВЛЕНИЕ ───',
+    'WASD / стрелки — движение',
+    'E — взаимодействие (диалог, предмет, записка)',
+    'TAB — словарь выученных слов',
+    IS_EMBEDDED ? 'ESC — выйти из клуба' : 'ESC — настройки (повторное ESC — закрыть)',
+    'ENTER — подтвердить ввод слова',
+    '',
+    '─── X-СИСТЕМА ЭСПЕРАНТО ───',
+    '',
+    'Чтобы не мучиться с диакритикой, вводи так:',
+    '',
+    '   cx → ĉ        Cx → Ĉ',
+    '   gx → ĝ        Gx → Ĝ',
+    '   hx → ĥ        Hx → Ĥ',
+    '   jx → ĵ        Jx → Ĵ',
+    '   sx → ŝ        Sx → Ŝ',
+    '   ux → ŭ        Ux → Ŭ',
+    '',
+    'Примеры:',
+    '   "cxambro"  →  ĉambro   (комната)',
+    '   "rugxa"    →  ruĝa     (красный)',
+    '   "sxlosilo" →  ŝlosilo  (ключ)',
+    '',
+    '─── РУССКАЯ РАСКЛАДКА ───',
+    'Если случайно печатаешь по-русски — ввод',
+    'исправится автоматически (гомоглифы + раскладка).',
+    '',
+    '─── СПЕЦ-КОМАНДЫ ───',
+    'Если застрял, введи в поле двери:',
+    '   "helpo" — подсказка от игры',
+    '   "vortaro" — напомнить про словарь'
+  ], ()=>{ document.getElementById('menu').classList.remove('hidden'); });
+}
+
+function toggleVortaro(){
+  const el = document.getElementById('vortaro');
+  if(el.classList.contains('hidden')){
+    const list = document.getElementById('vortaroList');
+    if(learned.size === 0){
+      list.innerHTML = '<div style="color:#666;font-size:13px;padding:10px 0;text-align:center;">Vi ankoraŭ ne lernis vortojn.<br>Ты пока не выучил ни одного слова.</div>';
+    } else {
+      list.innerHTML = Array.from(learned).sort().map(w =>
+        `<div class="wrow"><span>${w}</span><span>${VORTARO[w] || '—'}</span></div>`
+      ).join('');
+    }
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+/* =========================================================
+   ФИНАЛЫ
+   ========================================================= */
+function endGame(win){
+  state.mode = 'ending';
+  state.finished = true;
+  document.getElementById('ending').classList.remove('hidden');
+  const t = document.getElementById('endTitle');
+  const x = document.getElementById('endText');
+
+  let endingKey = 'silento';
+  let endingTitle = '';
+  let endingBody = '';
+
+  if(win){
+    const hasAmulet = state.flags.amulet;
+    const hasBook = state.flags.book;
+    const lowFear = state.fear < 40;
+    const wordsCount = learned.size;
+
+    if(hasAmulet && hasBook && lowFear){
+      endingKey = 'plena_memoro';
+      endingTitle = 'LA PLENA MEMORO';
+      endingBody =
+        'Ты произнёс имя клуба. И вспомнил всё.<br><br>' +
+        'Лисёнок и пчёлка улыбнулись — впервые за долгое время.<br>' +
+        '«Vi memoris nin. Vi memoris ĉion.»<br>' +
+        '(Ты вспомнил нас. Ты вспомнил всё.)<br><br>' +
+        'Амулет в твоей руке стал тёплым, а потом — просто светом.<br>' +
+        'Свет разлился по комнатам, по коридорам, по лабиринту.<br>' +
+        'И в этом свете ты видишь её — ту, что была абeleto. Дарину.<br>' +
+        'И её улыбку. Широкую. Красивую. Как тогда.<br><br>' +
+        'Клуб снова ожил. Не для всех — но для тебя.<br><br>' +
+        '<span style="color:#d0a870">— ИСТИННАЯ КОНЦОВКА: LA PLENA MEMORO —</span>';
+    } else if(hasAmulet && lowFear){
+      endingKey = 'lumo';
+      endingTitle = 'LA LUMO RESTIS';
+      endingBody =
+        'Ты произнёс имя клуба. Тьма отступила.<br><br>' +
+        '«Vi memoris nin. Nun ni povas ripozi.»<br>' +
+        '(Ты вспомнил нас. Теперь мы можем отдохнуть.)<br><br>' +
+        'Свет фонаря погас. Но тьма больше не пугала.<br>' +
+        'И где-то на границе этого света — ты чувствуешь улыбку.<br>' +
+        'Широкую. Красивую. Ту, что когда-то спасала целый клуб.<br><br>' +
+        '<span style="color:#c08858">— ХОРОШАЯ КОНЦОВКА: LA LUMO RESTIS —</span>';
+    } else if(!hasAmulet && !hasBook){
+      endingKey = 'silento';
+      endingTitle = 'LA SILENTO FINIĜIS';
+      endingBody =
+        'Ты произнёс имя клуба. Двери открылись.<br><br>' +
+        'Но что-то осталось незавершённым.<br>' +
+        'Ты не нашёл амулет. Не прочёл книгу.<br><br>' +
+        '«Vi memoris nin... sed ne ĉion.»<br>' +
+        '(Ты вспомнил нас... но не всё.)<br><br>' +
+        '<span style="color:#8a8a8a">— ОБЫЧНАЯ КОНЦОВКА: LA SILENTO FINIĜIS —</span>';
+    } else {
+      endingKey = 'silento';
+      endingTitle = 'LA SILENTO FINIĜIS';
+      endingBody =
+        'Ты произнёс имя клуба. Тишина ответила тебе.<br><br>' +
+        'Что-то ты сделал правильно. Что-то — упустил.<br>' +
+        'Но ты дошёл до конца.<br><br>' +
+        '<span style="color:#8a8a8a">— КОНЦОВКА: LA SILENTO FINIĜIS —</span>';
+    }
+    t.textContent = endingTitle;
+    x.innerHTML = endingBody +
+      '<br><br><br>Klubo <b>Vulpeto Abeleto</b> · Эсперанто-клуб<br>' +
+      'Выучено слов: <b>' + wordsCount + '</b> из ' + Object.keys(VORTARO).length + '<br>' +
+      'Смертей в лабиринте: <b>' + state.flags.mazeDeaths + '</b><br>' +
+      'Финальный Страх: <b>' + state.fear.toFixed(0) + '%</b>';
+    SFX.good();
+  } else {
+    endingKey = 'malgajno';
+    endingTitle = 'LA SILENTO RESTIS';
+    endingBody = 'Ты ушёл, не ответив на последний вопрос.<br>Тишина осталась.';
+    t.textContent = endingTitle;
+    x.innerHTML = endingBody;
+  }
+
+  // Кнопка: в KURSO — вернуться, standalone — перезапуск
+  const endBtn = document.getElementById('endBtn');
+  if(IS_EMBEDDED){
+    endBtn.textContent = '← ВЕРНУТЬСЯ В KURSO';
+    endBtn.onclick = (e) => {
+      e.preventDefault();
+      sendWalkDone(endingKey);
+    };
+  }
+  // Standalone: кнопка уже `location.reload()` из HTML
+}
+
+function sendWalkDone(ending){
+  if(state.mode === 'done') return;
+  state.mode = 'done';
+  const newWords = Array.from(learned).map(w => [w, VORTARO[w] || '']);
+  const memoryLabel =
+    ending === 'plena_memoro' ? 'La plena memoro' :
+    ending === 'lumo'         ? 'La lumo restis' :
+    ending === 'silento'      ? 'La silento finiĝis' :
+    ending === 'abort'        ? null :
+                                'La silento restis';
+  try {
+    window.parent.postMessage({
+      type: 'kurso-walk-done',
+      ending: ending,
+      newWords: newWords,
+      memory: memoryLabel,
+      wordsCount: learned.size,
+      mazeDeaths: state.flags.mazeDeaths,
+      finalFear: state.fear
+    }, '*');
+  } catch(e){ console.error('postMessage failed', e); }
+}
+
+function exitToKurso(){
+  if(!IS_EMBEDDED) return;
+  sendWalkDone('abort');
+}
+
+/* ---------- Настройки ---------- */
+function bindSlider(id, valId, key, fmt){
+  const el = document.getElementById(id);
+  const v = document.getElementById(valId);
+  if(!el) return;
+  const upd = ()=>{
+    SET[key] = parseFloat(el.value);
+    v.textContent = fmt ? fmt(SET[key]) : SET[key].toFixed(2);
+    applyFilters();
+  };
+  el.addEventListener('input', upd);
+  v.textContent = fmt ? fmt(SET[key]) : SET[key].toFixed(2);
+  upd();
+}
+bindSlider('setBrightness','vBrightness','brightness', x=>x.toFixed(2));
+bindSlider('setContrast','vContrast','contrast', x=>x.toFixed(2));
+bindSlider('setSaturation','vSaturation','saturation', x=>x.toFixed(2));
+bindSlider('setLight','vLight','light', x=>String(Math.round(x)));
+bindSlider('setDark','vDark','dark', x=>x.toFixed(2));
+bindSlider('setSpeed','vSpeed','speed', x=>x.toFixed(1));
+bindSlider('setVolume','vVolume','volume', x=>x.toFixed(2));
+bindSlider('setDrone','vDrone','drone', x=>x.toFixed(2));
+bindSlider('setFearRate','vFearRate','fearRate', x=>x.toFixed(2));
+
+document.getElementById('setGrain').addEventListener('change', e=>{ SET.grain = e.target.checked; });
+document.getElementById('setShake').addEventListener('change', e=>{ SET.shake = e.target.checked; });
+document.getElementById('setSteps').addEventListener('change', e=>{ SET.steps = e.target.checked; });
+document.getElementById('setWhispers').addEventListener('change', e=>{ SET.whispers = e.target.checked; });
+document.getElementById('setHints').addEventListener('change', e=>{ SET.hints = e.target.checked; });
+document.getElementById('setTranslate').addEventListener('change', e=>{ SET.translate = e.target.checked; });
+document.getElementById('setPursuer').addEventListener('change', e=>{
+  SET.pursuer = e.target.checked;
+  if(ROOMS[state.room] && ROOMS[state.room].type === 'maze'){
+    state.pursuer = SET.pursuer
+      ? { x: 21*TILE+TILE/2, y: 1*TILE+TILE/2, r: 13, speed: 0.65, path: [], timer: 0 }
+      : null;
+  }
+});
+
+/* ---------- Масштаб ---------- */
+function resize(){
+  const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+  canvas.style.width  = Math.floor(W * s) + 'px';
+  canvas.style.height = Math.floor(H * s) + 'px';
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* =========================================================
+   ИНТЕГРАЦИЯ С KURSO
+   ========================================================= */
+if(IS_EMBEDDED){
+  // Показать подсказку про выход
+  document.getElementById('embedExit').classList.remove('hidden');
+  // Показать кнопку «вернуться» в настройках
+  document.getElementById('exitKursoBtn').classList.remove('hidden');
+  // Поменять подсказку в HUD
+  document.getElementById('hudHint').textContent = '[E] взаимодействие · [TAB] словарь · [ESC] выйти';
+
+  // Принять состояние от родителя
+  window.addEventListener('message', (e) => {
+    if(!e.data || e.data.type !== 'kurso-walk-init') return;
+    (e.data.learned || []).forEach(w => {
+      if(VORTARO[w]) learned.add(w);
+    });
+    // Автозапуск после инициализации
+    if(state.mode === 'menu'){
+      setTimeout(() => {
+        if(state.mode === 'menu') startGame();
+      }, 500);
+    }
+  });
+
+  // Резервный автозапуск: если init не пришёл за 800 мс — стартуем сами
+  setTimeout(() => {
+    if(state.mode === 'menu') startGame();
+  }, 800);
+}
+
+/* ---------- Старт ---------- */
+applyFilters();
+state.grid = [];
+requestAnimationFrame(loop);
+
+window.addEventListener('pointerdown', ()=>SFX.init(), {once:true});
+window.addEventListener('keydown', ()=>SFX.init(), {once:true});
+</script>
+</body>
+</html>
